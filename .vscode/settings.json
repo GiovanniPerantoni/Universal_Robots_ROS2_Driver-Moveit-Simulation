@@ -1,0 +1,26 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/giovanni.perantoni/ros_ws/install/ur_robot_driver/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_msgs/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_moveit_config/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_dashboard_msgs/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/rqt_controller_manager/lib/python3.10/site-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ros2controlcli/lib/python3.10/site-packages",
+        "/home/giovanni.perantoni/ros_ws/install/controller_manager/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/controller_manager_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/giovanni.perantoni/ros_ws/install/ur_robot_driver/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_msgs/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_moveit_config/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ur_dashboard_msgs/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/rqt_controller_manager/lib/python3.10/site-packages",
+        "/home/giovanni.perantoni/ros_ws/install/ros2controlcli/lib/python3.10/site-packages",
+        "/home/giovanni.perantoni/ros_ws/install/controller_manager/local/lib/python3.10/dist-packages",
+        "/home/giovanni.perantoni/ros_ws/install/controller_manager_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

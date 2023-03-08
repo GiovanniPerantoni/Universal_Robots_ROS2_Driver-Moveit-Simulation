@@ -244,8 +244,18 @@ def launch_setup(context, *args, **kwargs):
         robot_description,
         robot_description_semantic,]
     )
-    # Servo node for realtime control
 
+    #Load Human Collisions
+    human_node = Node(
+        package="collision_loader",
+        executable="human_movement_node",
+        output="both",
+        parameters=[
+            robot_description,
+            robot_description_semantic,]
+    )
+
+    # Servo node for realtime control
     servo_yaml = load_yaml("ur_moveit_config", "config/ur_servo.yaml")
     servo_params = {"moveit_servo": servo_yaml}
     #using custom servo interface
@@ -277,6 +287,7 @@ def launch_setup(context, *args, **kwargs):
 
     nodes_to_start = [move_group_node,
                     collision_node,
+                    human_node,
                     rviz_node ,
                     servo_node, 
                     moveit_servo_joystick_container]
