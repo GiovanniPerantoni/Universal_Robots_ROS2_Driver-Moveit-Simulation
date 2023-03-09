@@ -15,7 +15,9 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("keyboard_control.interf
 // ^^^^^
 // First we declare pointers to the node and publisher that will publish commands to Servo
 rclcpp::Node::SharedPtr node_;
+float val = 0;
 
+void move_collisions(rclcpp::Node::SharedPtr node_);
 
 // Next we will set up the node, planning_scene_monitor, and collision object
 int main(int argc, char** argv)
@@ -51,6 +53,24 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
+  auto executor = std::make_unique<rclcpp::executors::MultiThreadedExecutor>();
+
+  while (true) {
+    move_collisions(node_);
+    // executor->add_node(node_);
+    // executor->spin();
+    executor->spin_node_once(node_);
+    cout << "\n\n\nMove\n\n" << endl;
+    rclcpp::sleep_for(std::chrono::seconds(2));
+  }
+
+  executor->spin();
+  
+  rclcpp::shutdown();
+  return 0;
+}
+
+void move_collisions(rclcpp::Node::SharedPtr node_) {
   // Next we will create a collision object in the way of the arm. As the arm is servoed towards it, it will slow down
   // and stop before colliding
   moveit_msgs::msg::CollisionObject l_arm;
@@ -65,16 +85,19 @@ int main(int argc, char** argv)
   // defining left arm's collision
   primitive1.type = primitive1.CYLINDER;
   primitive1.dimensions.resize(2);
-  primitive1.dimensions[0] = 2;
-  primitive1.dimensions[1] = 0.15;
+  primitive1.dimensions[0] = 1;
+  primitive1.dimensions[1] = 0.075;
+
+  val += 0.05;
+  cout << val << endl;
 
   geometry_msgs::msg::Pose l_arm_pose;
   // defining left arm's pose
   l_arm_pose.orientation.w = -0.707;
-  l_arm_pose.orientation.z = 0.707;
-  l_arm_pose.position.x = -1;
-  l_arm_pose.position.y = -1;
-  l_arm_pose.position.z = Z_BASE_LINK - 0.867 / 2;
+  l_arm_pose.orientation.x = val; //0.707;
+  l_arm_pose.position.x = 0;
+  l_arm_pose.position.y = 0.65;
+  l_arm_pose.position.z = Z_DESK - 0.5;
   
 
   l_arm.primitives.push_back(primitive1);
@@ -92,9 +115,6 @@ int main(int argc, char** argv)
   scene_pub->publish(ps);
 
   // We use a multithreaded executor here because Servo has concurrent processes for moving the robot and avoiding collisions
-  auto executor = std::make_unique<rclcpp::executors::MultiThreadedExecutor>();
-  executor->add_node(node_);
-  executor->spin();
-  rclcpp::shutdown();
-  return 0;
+  // executor->add_node(node_);
+  // executor->spin();
 }

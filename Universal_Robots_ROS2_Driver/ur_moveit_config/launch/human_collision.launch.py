@@ -285,12 +285,57 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    nodes_to_start = [move_group_node,
-                    collision_node,
-                    #human_node,
-                    rviz_node ,
-                    servo_node, 
-                    moveit_servo_joystick_container]
+    # Parameters unique to this plugin
+    global_planner_param = load_yaml(
+        "moveit_hybrid_planning", "config/global_planner.yaml"
+    )
+    local_planner_param = load_yaml(
+        "moveit_hybrid_planning", "config/local_planner.yaml"
+    )
+    hybrid_planning_manager_param = load_yaml(
+        "moveit_hybrid_planning", "config/hybrid_planning_manager.yaml"
+    )
+    # Generate launch description with multiple components
+    hybrid_planner_container = ComposableNodeContainer(
+        name="hybrid_planning_container",
+        namespace="/",
+        package="rclcpp_components",
+        executable="component_container",
+        composable_node_descriptions=[
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::GlobalPlannerComponent",
+                name="global_planner",
+                parameters=[
+                    global_planner_param,
+                    robot_description,
+                    robot_description_semantic,
+                    robot_description_kinematics,
+                    ompl_planning_pipeline_config,
+                ],
+            ),
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::LocalPlannerComponent",
+                name="local_planner",
+                parameters=[
+                    local_planner_param,
+                    robot_description,
+                    robot_description_semantic,
+                    robot_description_kinematics,
+                ],
+            ),
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::HybridPlanningManager",
+                name="hybrid_planning_manager",
+                parameters=[hybrid_planning_manager_param],
+            ),
+        ],
+        output="screen",
+    )
+
+    nodes_to_start = [human_node]
 
     return nodes_to_start
 
@@ -304,6 +349,7 @@ def generate_launch_description():
             "ur_type",
             description="Type/series of used UR robot.",
             choices=["ur3", "ur3e", "ur5", "ur5e", "ur10", "ur10e", "ur16e"],
+            default_value="ur5e",
         )
     )
     declared_arguments.append(

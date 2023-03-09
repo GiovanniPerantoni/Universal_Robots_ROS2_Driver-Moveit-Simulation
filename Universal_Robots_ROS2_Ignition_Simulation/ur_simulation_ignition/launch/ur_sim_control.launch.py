@@ -242,7 +242,7 @@ def launch_setup(context: LaunchContext):
         ignition_launch_description,
         ignition_robot_spawner,
         ignition_table_spawner,
-        forward_controller_spawner
+        #forward_controller_spawner
         #forward_controller_spawner_stopped
     ]
 
