@@ -13,12 +13,15 @@ find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_ros_move_group REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(moveit_servo REQUIRED)
+find_package(moveit REQUIRED)
 
 add_executable(collision_loader_node src/add_collisions.cpp)
 add_executable(human_movement_node src/human_movement.cpp)
+add_executable(hybrid_node src/hybrid.cpp)
 
 ament_target_dependencies(collision_loader_node rclcpp moveit_ros_planning_interface moveit_ros_move_group moveit_msgs moveit_servo)
 ament_target_dependencies(human_movement_node rclcpp moveit_ros_planning_interface moveit_ros_move_group moveit_msgs moveit_servo)
+ament_target_dependencies(hybrid_node rclcpp moveit_ros_planning_interface moveit_ros_move_group moveit_msgs moveit_servo moveit)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -33,6 +36,7 @@ if(BUILD_TESTING)
 install(TARGETS
   collision_loader_node 
   human_movement_node
+  hybrid_node
   DESTINATION lib/${PROJECT_NAME})
 endif()
 

@@ -30,6 +30,8 @@
 # Author: Denis Stogl
 
 import os
+import sys
+import launch
 
 from launch import LaunchDescription
 from launch_ros.actions import ComposableNodeContainer
@@ -42,6 +44,37 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ur_moveit_config.launch_common import load_yaml
 
+sys.path.append(os.path.dirname(__file__))
+from hybrid_planning_common import (
+    generate_common_hybrid_launch_description,
+    get_robot_description,
+    get_robot_description_semantic,
+    load_yaml,
+)
+
+def generate_launch_description_d():
+    # generate_common_hybrid_launch_description() returns a list of nodes to launch
+    common_launch = generate_common_hybrid_launch_description()
+    robot_description = get_robot_description()
+    robot_description_semantic = get_robot_description_semantic()
+
+    # Demo node
+    common_hybrid_planning_param = load_yaml(
+        "moveit_hybrid_planning", "config/common_hybrid_planning_params.yaml"
+    )
+    demo_node = Node(
+        package="moveit_hybrid_planning",
+        executable="hybrid_planning_demo_node",
+        name="hybrid_planning_demo_node",
+        output="screen",
+        parameters=[
+            get_robot_description(),
+            get_robot_description_semantic(),
+            common_hybrid_planning_param,
+        ],
+    )
+
+    return launch.LaunchDescription(common_launch + [demo_node])
 
 def launch_setup(context, *args, **kwargs):
 
@@ -285,55 +318,26 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    # Parameters unique to this plugin
-    global_planner_param = load_yaml(
-        "moveit_hybrid_planning", "config/global_planner.yaml"
-    )
-    local_planner_param = load_yaml(
-        "moveit_hybrid_planning", "config/local_planner.yaml"
-    )
-    hybrid_planning_manager_param = load_yaml(
-        "moveit_hybrid_planning", "config/hybrid_planning_manager.yaml"
-    )
-    # Generate launch description with multiple components
-    hybrid_planner_container = ComposableNodeContainer(
-        name="hybrid_planning_container",
-        namespace="/",
-        package="rclcpp_components",
-        executable="component_container",
-        composable_node_descriptions=[
-            ComposableNode(
-                package="moveit_hybrid_planning",
-                plugin="moveit::hybrid_planning::GlobalPlannerComponent",
-                name="global_planner",
-                parameters=[
-                    global_planner_param,
-                    robot_description,
-                    robot_description_semantic,
-                    robot_description_kinematics,
-                    ompl_planning_pipeline_config,
-                ],
-            ),
-            ComposableNode(
-                package="moveit_hybrid_planning",
-                plugin="moveit::hybrid_planning::LocalPlannerComponent",
-                name="local_planner",
-                parameters=[
-                    local_planner_param,
-                    robot_description,
-                    robot_description_semantic,
-                    robot_description_kinematics,
-                ],
-            ),
-            ComposableNode(
-                package="moveit_hybrid_planning",
-                plugin="moveit::hybrid_planning::HybridPlanningManager",
-                name="hybrid_planning_manager",
-                parameters=[hybrid_planning_manager_param],
-            ),
-        ],
-        output="screen",
-    )
+    # # generate_common_hybrid_launch_description() returns a list of nodes to launch
+    # common_launch = generate_common_hybrid_launch_description()
+    # robot_description_f = get_robot_description()
+    # robot_description_semantic_f = get_robot_description_semantic()
+
+    # # Demo node
+    # common_hybrid_planning_param = load_yaml(
+    #     "moveit_hybrid_planning", "config/common_hybrid_planning_params.yaml"
+    # )
+    # hybrid_planner = Node(
+    #     package="moveit_hybrid_planning",
+    #     executable="hybrid_planning_demo_node",
+    #     name="hybrid_planning_demo_node",
+    #     output="screen",
+    #     parameters=[
+    #         get_robot_description(),
+    #         get_robot_description_semantic(),
+    #         common_hybrid_planning_param,
+    #     ],
+    # )
 
     nodes_to_start = [human_node]
 
@@ -441,4 +445,7 @@ def generate_launch_description():
         DeclareLaunchArgument("launch_servo", default_value="true", description="Launch Servo?")
     )
 
+
+    # gen = generate_launch_description_d()
+    # return LaunchDescription([declared_arguments + [OpaqueFunction(function=launch_setup)], generate_launch_description_d()])
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
