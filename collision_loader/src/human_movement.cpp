@@ -71,42 +71,116 @@ int main(int argc, char** argv)
 }
 
 void move_collisions(rclcpp::Node::SharedPtr node_) {
+  val += 0.05;
+  cout << val << endl;
+
   // Next we will create a collision object in the way of the arm. As the arm is servoed towards it, it will slow down
   // and stop before colliding
   moveit_msgs::msg::CollisionObject l_arm;
-
+  moveit_msgs::msg::CollisionObject r_arm;
+  moveit_msgs::msg::CollisionObject h_body;
+  moveit_msgs::msg::CollisionObject l_fore;
+  moveit_msgs::msg::CollisionObject r_fore;
 
   // define reference frame
   l_arm.header.frame_id = "base_link";
+  r_arm.header.frame_id = "base_link";
+  h_body.header.frame_id = "base_link";
+  l_fore.header.frame_id = "base_link";
+  r_fore.header.frame_id = "base_link";
 
   l_arm.id = "l_arm";
+  r_arm.id = "r_arm";
+  h_body.id = "h_body";
+  l_fore.id = "l_fore";
+  r_fore.id = "r_fore";
 
-  shape_msgs::msg::SolidPrimitive primitive1;
+  shape_msgs::msg::SolidPrimitive primitive1, primitive2, primitive3, primitive4, primitive5;
   // defining left arm's collision
   primitive1.type = primitive1.CYLINDER;
   primitive1.dimensions.resize(2);
   primitive1.dimensions[0] = 1;
   primitive1.dimensions[1] = 0.075;
+  // defining right arm's collision
+  primitive2.type = primitive2.CYLINDER;
+  primitive2.dimensions.resize(2);
+  primitive2.dimensions[0] = 1;
+  primitive2.dimensions[1] = 0.075;
+  // defining body's collision
+  primitive3.type = primitive2.CYLINDER;
+  primitive3.dimensions.resize(2);
+  primitive3.dimensions[0] = 2;
+  primitive3.dimensions[1] = 0.25;
+  // defining left forearm's collision
+  primitive4.type = primitive2.CYLINDER;
+  primitive4.dimensions.resize(2);
+  primitive4.dimensions[0] = 1;
+  primitive4.dimensions[1] = 0.075;
+  // defining right forearm's collision
+  primitive5.type = primitive2.CYLINDER;
+  primitive5.dimensions.resize(2);
+  primitive5.dimensions[0] = 1;
+  primitive5.dimensions[1] = 0.075;
 
-  val += 0.05;
-  cout << val << endl;
-
-  geometry_msgs::msg::Pose l_arm_pose;
+  geometry_msgs::msg::Pose l_arm_pose, r_arm_pose, h_body_pose, l_fore_pose, r_fore_pose;
   // defining left arm's pose
   l_arm_pose.orientation.w = -0.707;
-  l_arm_pose.orientation.x = val; //0.707;
-  l_arm_pose.position.x = 0;
-  l_arm_pose.position.y = 0.65;
+  l_arm_pose.orientation.y = 0.707; //val; //
+  // l_arm_pose.orientation.x = val;
+  l_arm_pose.position.x = 0-0.4;
+  l_arm_pose.position.y = 0.75;
   l_arm_pose.position.z = Z_DESK - 0.5;
-  
+  // defining right arm's pose
+  r_arm_pose.orientation.w = -0.707;
+  r_arm_pose.orientation.y = 0.707;
+  r_arm_pose.position.x = 1-0.4;
+  r_arm_pose.position.y = 0.75;
+  r_arm_pose.position.z = Z_DESK - 0.5;
+  // defining body pose
+  h_body_pose.orientation.w = 1;
+  h_body_pose.position.x = 0.5-0.4;
+  h_body_pose.position.y = 0.75;
+  h_body_pose.position.z = Z_DESK - 0.25;
+  // defining left forearm's pose
+  l_fore_pose.orientation.w = -0.707;
+  l_fore_pose.orientation.x = 0.707;
+  l_fore_pose.position.x = 0-0.5;
+  l_fore_pose.position.y = 0.75;
+  l_fore_pose.position.z = Z_DESK - 0.5;
+  // defining right forearm's pose
+  r_fore_pose.orientation.w = -0.707;
+  r_fore_pose.orientation.x = 0.707;
+  r_fore_pose.position.x = 1-0.3;
+  r_fore_pose.position.y = 0.75;
+  r_fore_pose.position.z = Z_DESK - 0.5;
 
   l_arm.primitives.push_back(primitive1);
   l_arm.primitive_poses.push_back(l_arm_pose);
   l_arm.operation = l_arm.ADD;
+  
+  r_arm.primitives.push_back(primitive2);
+  r_arm.primitive_poses.push_back(r_arm_pose);
+  r_arm.operation = r_arm.ADD;
+
+  h_body.primitives.push_back(primitive3);
+  h_body.primitive_poses.push_back(h_body_pose);
+  h_body.operation = h_body.ADD;
+
+  l_fore.primitives.push_back(primitive4);
+  l_fore.primitive_poses.push_back(l_fore_pose);
+  l_fore.operation = l_fore.ADD;
+
+  r_fore.primitives.push_back(primitive5);
+  r_fore.primitive_poses.push_back(r_fore_pose);
+  r_fore.operation = r_fore.ADD;
 
   // Create the message to publish the collision object
   moveit_msgs::msg::PlanningSceneWorld psw;
   psw.collision_objects.push_back(l_arm);
+  psw.collision_objects.push_back(r_arm);
+  psw.collision_objects.push_back(h_body);
+  psw.collision_objects.push_back(l_fore);
+  psw.collision_objects.push_back(r_fore);
   moveit_msgs::msg::PlanningScene ps;
   ps.is_diff = true;
   ps.world = psw; 
